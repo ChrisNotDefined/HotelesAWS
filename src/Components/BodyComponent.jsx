@@ -8,10 +8,12 @@ import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
+import { withRouter } from 'react-router';
+import HotelsService from '../Services/HotelsService';
 //import Hotel from "../Images/hotel.png";
 //import Torres from "../Images/torres.png";
 
-export default class BodyComponent extends React.Component {
+class BodyComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -23,66 +25,35 @@ export default class BodyComponent extends React.Component {
     await this._gethoteles();
   }
 
-  _gethoteles() {
+  async _gethoteles() {
+    
+    const response = await HotelsService.getHotels();
+    this.setState({ hoteles: response.data });
+    
     // API
-    var example = [
-      {
-        Id: 1,
-        Name: "Torres Gemelas Acapulco",
-        Descripcion: "Las torres de acapulco",
-        Location: "Acapulco, Gro",
-        Price: 300,
-        Rating: 3,
-        imgSource:
-          "https://thumbnails.trvl-media.com/3FYFaGTHMLzb8pZEfG4yjvqUpSA=/773x530/smart/filters:quality(60)/images.trvl-media.com/hotels/2000000/1140000/1139600/1139576/37e1f5a1_z.jpg",
-      },
-      {
-        Id: 2,
-        Name: "Princess",
-        Location: "Acapulco, Gro",
-        Descripcion: "Hotel en la Zona Diamante de Acapulco",
-        Rating: 5,
-        Price: 5000,
-        imgSource:
-          "https://q-cf.bstatic.com/images/hotel/max1280x900/964/96473145.jpg",
-      },
-      {
-        Id: 3,
-        Name: "Grand Hotel",
-        Location: "Acapulco, Gro",
-        Descripcion: "Hotel vecino a la base de marina nacional",
-        Rating: 5,
-        Price: 2000,
-        imgSource:
-          "https://www.dcm-arquitectos.com/english/wp-content/uploads/2016/03/Grand-Hotel-Acapulco-2.jpg",
-      },
-    ];
-
-    this.setState({ hoteles: example });
   }
 
   _renderHotels() {
     if (!this.state.hoteles || this.state.hoteles.length < 1) {
-      return <div>No se encntraron hoteles</div>;
+      return <h1 style={{margin: "10px"}}>Cargando...</h1>;
     } else {
       return this.state.hoteles.map((hotel) => (
         <Grid item md={6} lg={4}>
           <Card style={{ margin: "10px", width: "400px", height: "350px" }}>
-            <CardActionArea component={Link}
-                to="/detail">
+            <CardActionArea onClick={() => this._navigateToHotel(hotel.id)}>
               <CardMedia
                 component="img"
-                alt={hotel.Name}
+                alt={hotel.name}
                 height="175"
                 image={hotel.imgSource}
-                title={hotel.Name}
+                title={hotel.name}
               />
               <CardContent>
                 <Typography gutterBottom variant="h5" component="h2">
-                  {hotel.Name}
+                  {hotel.name}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
-                  {hotel.Descripcion}
+                  {hotel.descripcion}
                 </Typography>
               </CardContent>
             </CardActionArea>
@@ -102,6 +73,14 @@ export default class BodyComponent extends React.Component {
     }
   }
 
+  _navigateToHotel(id) {
+    this.props.history.push(`/detail/${id}`);
+  }
+
+  _navigateToFavorite(id) {
+    this.props.history.push(`/favorites/${id}`);
+  }
+
   render() {
     return (
       <div style={{width: "100%"}}>
@@ -110,3 +89,5 @@ export default class BodyComponent extends React.Component {
     );
   }
 }
+
+export default withRouter(BodyComponent);
